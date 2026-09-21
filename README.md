@@ -24,7 +24,7 @@ Windows 와 macOS 가 **완전히 동일한 컴파일러·코어 버전**을 쓰
 ### 1단계 — 저장소 내려받기
 
 ```bash
-git clone <저장소 주소> mc2026
+git clone https://github.com/PGH0621/mc2026.git
 cd mc2026
 ```
 
