@@ -60,6 +60,13 @@ powershell -ExecutionPolicy Bypass -File .\scripts\setup-windows.ps1
 `이 시스템에서 스크립트를 실행할 수 없으므로...` 오류가 나면
 위 명령을 **정확히 그대로** 썼는지 확인하세요. (`.\` 포함)
 
+### 쉘 차이 주의
+Windows 는 **PowerShell**, macOS 는 **터미널(zsh)** 을 씁니다. 문법이 다릅니다.
+
+- PowerShell 5.1 은 `&&` 를 지원하지 않습니다. macOS용 안내를 그대로 붙여넣지 마세요.
+  → [TROUBLESHOOTING.md](TROUBLESHOOTING.md) A-4
+- 경로 구분자는 `\` 입니다. (`.\scripts\doctor.ps1`)
+
 ---
 
 ## 3. 수동 설치 (winget 이 없거나 스크립트가 실패할 때)

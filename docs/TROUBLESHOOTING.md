@@ -32,6 +32,31 @@ PlatformIO Core 는 `PATH` 에 자동 등록되지 않습니다. 정상입니다
   (명령 팔레트 → `PlatformIO: New Terminal`)
 - 저장소의 `doctor` 스크립트는 `pio` 위치를 알아서 찾으므로 그냥 실행하면 됩니다.
 
+### A-4. `'&&' 토큰은 이 버전에서 올바른 문 구분 기호가 아닙니다` (Windows)
+
+Windows PowerShell 5.1 은 `&&` 를 지원하지 않습니다. (PowerShell 7 부터 지원)
+인터넷이나 macOS용 안내에서 복사한 명령을 붙여넣으면 이 오류가 납니다.
+
+```
+git add -A && git commit -m "메시지"
+```
+
+해결: **두 줄로 나눠서 한 번에 하나씩** 실행하세요.
+
+```
+git add -A
+git commit -m "메시지"
+```
+
+앞 명령이 성공했을 때만 다음을 실행하고 싶다면:
+
+```
+git add -A; if ($?) { git commit -m "메시지" }
+```
+
+> 이 저장소 문서의 명령은 모두 한 줄씩 실행하도록 작성되어 있습니다.
+> 여러 줄이 한 블록에 있으면 **한 줄씩** 복사해 실행하세요.
+
 ### A-3. `code` 명령이 없다고 나옴
 - Windows: VS Code 재설치 시 **"PATH에 추가"** 를 체크. 또는 터미널을 새로 열기
 - macOS: VS Code → `Cmd+Shift+P` → `Shell Command: Install 'code' command in PATH`
