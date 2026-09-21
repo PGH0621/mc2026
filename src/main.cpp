@@ -1,82 +1,45 @@
 /**
- * 마이크로컨트롤러응용 2026 - 환경 점검용 예제 (Week 00)
+ * 실습 01 - LED Blink
  *
- * 목적: 개발환경이 올바르게 구성되었는지 3가지를 한 번에 확인한다.
- *   1) 컴파일       - 빌드가 성공하는가
- *   2) 업로드       - 보드에 실제로 써지는가 (LED 깜빡임으로 확인)
- *   3) 시리얼 통신  - 모니터에 글자가 보이는가
+ * 목표: Arduino 프로그램의 기본 구조(setup / loop)를 이해하고
+ *       디지털 출력으로 LED를 제어한다.
  *
- * 대상 보드: Arduino Uno R3 (ATmega328P @ 16MHz)
- *
- * 사용법 (Windows / macOS 동일):
- *   VS Code 맨 아래 파란 상태 표시줄의 아이콘을 사용합니다.
- *     체크(v) 모양   -> Build   (컴파일만)
- *     화살표(->) 모양 -> Upload  (컴파일 + 보드에 쓰기)
- *     플러그 모양     -> Serial Monitor  (종료는 Ctrl + C)
- *   아이콘이 헷갈리면 마우스를 올려 이름을 확인하거나,
- *   명령 팔레트(Ctrl+Shift+P / Cmd+Shift+P)에서 "PlatformIO: Upload" 를 검색하세요.
- *
- * 기대 결과:
- *   - 보드 위 L 표시 LED 가 1초 주기로 점멸
- *   - 시리얼 모니터에 1초마다 경과 시간이 출력
- *   - 모니터에 아무 글자나 입력 + Enter -> 그대로 되돌아옴(에코)
+ * 회로: 아두이노 보드에 내장된 LED 사용 (13번 핀). 추가 배선 불필요.
  */
 
 #include <Arduino.h>
 
-static const uint8_t  LED_PIN       = LED_BUILTIN;  // Uno 기준 13번 핀
-static const uint32_t BLINK_PERIOD  = 1000UL;       // [ms] 점멸 주기
-static const uint32_t SERIAL_BAUD   = 9600UL;       // platformio.ini 의 monitor_speed 와 반드시 일치
+// ── 설정값 ────────────────────────────────────────────────
+// 이 두 숫자를 바꿔가며 동작이 어떻게 달라지는지 관찰하세요.
+const int LED_PIN  = 13;    // 내장 LED 가 연결된 핀 번호
+const int ON_TIME  = 500;   // 켜져 있는 시간 [ms]
+const int OFF_TIME = 500;   // 꺼져 있는 시간 [ms]
 
-static uint32_t g_lastToggleMs = 0;
-static bool     g_ledOn        = false;
-static uint32_t g_tickCount    = 0;
-
+// ── setup() : 전원이 켜질 때 딱 한 번 실행 ────────────────
 void setup() {
+  // 13번 핀을 "출력"으로 쓰겠다고 선언한다.
+  // 이 선언이 없으면 digitalWrite 를 해도 전압이 제대로 나오지 않는다.
   pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, LOW);
-
-  Serial.begin(SERIAL_BAUD);
-  while (!Serial) {
-    ; // Uno 에서는 즉시 통과. (Leonardo/Micro 계열 호환을 위해 남겨둠)
-  }
-
-  Serial.println();
-  Serial.println(F("========================================"));
-  Serial.println(F(" MCU Application 2026 - Environment OK"));
-  Serial.print  (F(" Board  : "));
-  Serial.println(F("Arduino Uno R3 (ATmega328P)"));
-  Serial.print  (F(" Build  : "));
-  Serial.print  (F(__DATE__));
-  Serial.print  (F(" "));
-  Serial.println(F(__TIME__));
-  Serial.println(F("========================================"));
-  Serial.println(F("아무 글자나 입력하고 Enter 를 눌러보세요."));
 }
 
+// ── loop() : setup() 이 끝난 뒤 무한 반복 ─────────────────
 void loop() {
-  // ---- 1) 논블로킹 LED 점멸 --------------------------------
-  // delay() 를 쓰지 않는 이유: delay 동안에는 시리얼 입력을 받을 수 없다.
-  const uint32_t now = millis();
-  if (now - g_lastToggleMs >= BLINK_PERIOD) {
-    g_lastToggleMs = now;
-    g_ledOn = !g_ledOn;
-    digitalWrite(LED_PIN, g_ledOn ? HIGH : LOW);
+  digitalWrite(LED_PIN, HIGH);  // 5V 출력 → LED 켜짐
+  delay(ON_TIME);               // ON_TIME 밀리초 동안 멈춤
 
-    if (g_ledOn) {
-      g_tickCount++;
-      Serial.print(F("[tick "));
-      Serial.print(g_tickCount);
-      Serial.print(F("] uptime = "));
-      Serial.print(now / 1000UL);
-      Serial.println(F(" s"));
-    }
-  }
-
-  // ---- 2) 시리얼 에코 --------------------------------------
-  if (Serial.available() > 0) {
-    const String line = Serial.readStringUntil('\n');
-    Serial.print(F("  <- echo: "));
-    Serial.println(line);
-  }
+  digitalWrite(LED_PIN, LOW);   // 0V 출력 → LED 꺼짐
+  delay(OFF_TIME);              // OFF_TIME 밀리초 동안 멈춤
 }
+
+/*
+ * ── 확인 문제 ──────────────────────────────────────────────
+ * 1. ON_TIME 을 100, OFF_TIME 을 900 으로 바꾸면 어떻게 보이는가?
+ * 2. 둘 다 50 으로 바꾸면? 둘 다 5 로 바꾸면?
+ *    (사람 눈이 깜빡임을 구분하지 못하는 경계를 찾아보세요)
+ * 3. setup() 안의 pinMode 줄을 지우면 어떻게 되는가?
+ *
+ * ── 참고 ──────────────────────────────────────────────────
+ * delay() 는 그 시간 동안 CPU 를 완전히 묶어둔다.
+ * 버튼 입력을 동시에 받으려면 delay() 로는 불가능하다.
+ * 해결 방법(millis 사용)은 examples/00_env_check.cpp 를 참고.
+ */
