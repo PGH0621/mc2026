@@ -1,0 +1,12 @@
+# 과제 채점 시 스타일 편차를 없애기 위한 공통 포맷 설정
+# VS Code 에서 저장하면 자동 적용됩니다 (Alt+Shift+F 로 수동 실행)
+BasedOnStyle: LLVM
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+ColumnLimit: 100
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+PointerAlignment: Left
+SortIncludes: false

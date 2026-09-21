@@ -1,0 +1,43 @@
+{
+  // ---- 파일 저장 규칙 (Windows / macOS 동일하게) ----
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+
+  // ---- 편집기 ----
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.rulers": [100],
+  "[cpp]": {
+    "editor.defaultFormatter": "ms-vscode.cpptools",
+    "editor.formatOnSave": true
+  },
+  "[c]": {
+    "editor.defaultFormatter": "ms-vscode.cpptools",
+    "editor.formatOnSave": true
+  },
+
+  // ---- .ino 파일도 C++ 로 인식시키기 ----
+  "files.associations": {
+    "*.ino": "cpp",
+    "*.tpp": "cpp"
+  },
+
+  // ---- PlatformIO ----
+  // 번들 PIO Core 사용 = 학생 PC의 시스템 Python 상태와 무관하게 동작
+  "platformio-ide.useBuiltinPIOCore": true,
+  "platformio-ide.autoRebuildAutocompleteIndex": true,
+  "platformio-ide.disablePIOHomeStartup": true,
+
+  // ---- 빌드 산출물은 탐색기/검색에서 숨김 ----
+  "files.exclude": {
+    "**/.pio": true
+  },
+  "search.exclude": {
+    "**/.pio": true,
+    "**/lib/**/examples": true
+  },
+
+  "terminal.integrated.scrollback": 10000
+}

@@ -1,0 +1,20 @@
+# ---- PlatformIO ----
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# ---- VS Code (PlatformIO 가 자동 생성하는 것들: 커밋하면 OS별로 충돌남) ----
+.vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/ipch/
+.vscode/.browse.c_cpp.db*
+
+# ---- OS 부스러기 ----
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# ---- 기타 ----
+*.swp
+*.bak
