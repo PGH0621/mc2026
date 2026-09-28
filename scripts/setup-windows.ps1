@@ -76,21 +76,28 @@ Install-IfMissing 'code' 'Microsoft.VisualStudioCode' 'VS Code'
 $env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' +
             [Environment]::GetEnvironmentVariable('Path','User')
 
-# --- 4. 한글 계정 우회 ---------------------------------------------------
-Write-Step "사용자 계정 경로 점검"
-$profilePath = $env:USERPROFILE
-$isAscii = $profilePath -match '^[\x20-\x7E]+$'
-if ($isAscii) {
-    Write-Ok "계정 경로에 한글/특수문자가 없습니다. ($profilePath)"
+# --- 4. 프로젝트 경로 점검 -----------------------------------------------
+# 계정 이름이나 경로에 한글이 있어도 빌드는 정상 동작한다 (실측 확인).
+# 실제로 문제가 되는 것은 OneDrive 동기화 폴더다.
+Write-Step "프로젝트 경로 점검"
+$here = (Get-Location).Path
+if ($here -match 'OneDrive') {
+    Write-Warn "프로젝트가 OneDrive 동기화 폴더 안에 있습니다:"
+    Write-Warn "  $here"
+    Write-Warn "동기화 중 파일이 잠겨 빌드가 실패할 수 있습니다. C:\dev\mc2026 등으로 옮기세요."
 } else {
-    Write-Warn "계정 경로에 한글이 포함되어 있습니다: $profilePath"
-    Write-Warn "이 상태로는 AVR 컴파일러가 경로를 찾지 못해 빌드가 실패합니다."
-    $coreDir = Join-Path $env:SystemDrive 'pio-core'
-    New-Item -ItemType Directory -Force -Path $coreDir | Out-Null
-    [Environment]::SetEnvironmentVariable('PLATFORMIO_CORE_DIR', $coreDir, 'User')
-    $env:PLATFORMIO_CORE_DIR = $coreDir
-    Write-Ok "PLATFORMIO_CORE_DIR 을 $coreDir 로 설정했습니다."
-    Write-Warn "설정을 적용하려면 VS Code 를 완전히 종료 후 다시 실행하세요."
+    Write-Ok "OneDrive 밖입니다. ($here)"
+}
+
+# 예전 버전 스크립트가 남긴 우회 설정이 있으면 되돌린다.
+# 이 값이 빈 폴더를 가리키면 PlatformIO Core 를 못 찾는다.
+$legacy = [Environment]::GetEnvironmentVariable('PLATFORMIO_CORE_DIR', 'User')
+if ($legacy) {
+    Write-Warn "이전 설치가 남긴 PLATFORMIO_CORE_DIR 발견: $legacy"
+    [Environment]::SetEnvironmentVariable('PLATFORMIO_CORE_DIR', $null, 'User')
+    Remove-Item Env:\PLATFORMIO_CORE_DIR -ErrorAction SilentlyContinue
+    Write-Ok "제거했습니다. 기본 위치($env:USERPROFILE\.platformio)를 사용합니다."
+    Write-Warn "PowerShell 창을 새로 열어야 반영됩니다."
 }
 
 # --- 5. PlatformIO 확장 --------------------------------------------------

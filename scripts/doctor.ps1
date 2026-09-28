@@ -19,12 +19,29 @@ function Check($name, [scriptblock]$body) {
 }
 
 # pio 실행 파일 찾기 (PATH -> PlatformIO Core 디렉터리 순)
+$script:PioSearched = @()
+
 function Get-PioPath {
     $c = Get-Command pio -ErrorAction SilentlyContinue
     if ($c) { return $c.Source }
-    $core = if ($env:PLATFORMIO_CORE_DIR) { $env:PLATFORMIO_CORE_DIR } else { Join-Path $env:USERPROFILE '.platformio' }
-    $p = Join-Path $core 'penv\Scripts\pio.exe'
-    if (Test-Path $p) { return $p }
+
+    $roots = @()
+    # 현재 프로세스의 환경변수
+    if ($env:PLATFORMIO_CORE_DIR) { $roots += $env:PLATFORMIO_CORE_DIR }
+    # 사용자 환경변수로만 등록되어 현재 프로세스에는 안 보이는 경우
+    $reg = [Environment]::GetEnvironmentVariable('PLATFORMIO_CORE_DIR', 'User')
+    if ($reg) { $roots += $reg }
+    # 기본 위치
+    $roots += (Join-Path $env:USERPROFILE '.platformio')
+    # 예전 버전 설치 스크립트가 쓰던 위치
+    $roots += (Join-Path $env:SystemDrive 'pio-core')
+
+    $script:PioSearched = @()
+    foreach ($r in ($roots | Where-Object { $_ } | Select-Object -Unique)) {
+        $p = Join-Path $r 'penv\Scripts\pio.exe'
+        $script:PioSearched += $p
+        if (Test-Path $p) { return $p }
+    }
     return $null
 }
 
@@ -35,7 +52,13 @@ Write-Host "=======================================================" -Foreground
 $pio = Get-PioPath
 if (-not $pio) {
     Write-Host "`nPlatformIO Core 를 찾을 수 없습니다." -ForegroundColor Red
-    Write-Host "VS Code 에서 이 폴더를 열고, 우측 하단 설치 알림이 끝난 뒤 다시 실행하세요."
+    Write-Host "찾아본 위치:" -ForegroundColor Yellow
+    foreach ($p in $script:PioSearched) { Write-Host "  $p" }
+    Write-Host ""
+    Write-Host "대부분 아직 설치가 안 끝난 경우입니다. 순서대로 확인하세요:" -ForegroundColor Yellow
+    Write-Host "  1) VS Code 로 이 폴더를 '폴더째' 열었는가"
+    Write-Host "  2) 우측 하단 'PlatformIO Core 설치 중' 알림이 끝났는가 (최초 5~10분)"
+    Write-Host "  3) 이 PowerShell 창을 새로 열고 다시 실행했는가"
     exit 1
 }
 Write-Host "PlatformIO Core 경로: $pio"

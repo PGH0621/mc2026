@@ -20,28 +20,33 @@ PlatformIO 는 AVR 툴체인을 `C:\Users\<계정>\.platformio` 에 약 400 MB �
 
 | 조건 | 이유 |
 |---|---|
-| 경로에 한글 없음 | avr-gcc 가 비ASCII 경로를 못 읽습니다 |
-| 경로에 공백 없음 | 일부 빌드 스크립트가 따옴표 처리를 안 합니다 |
 | OneDrive 밖 | 동기화 중 파일 잠김 → 빌드 실패 |
 
+경로에 **한글이나 공백이 있어도 빌드는 정상 동작합니다.** (atmelavr 5.3.0 / avr-gcc 7.3.0 조합에서 확인)
+예전에는 문제가 되었고 그 시절 정보가 아직 많이 돌아다니지만, 이 저장소가 고정한 툴체인에서는 해당하지 않습니다.
+
 - 권장: `C:\dev\mc2026`
-- 비권장: `C:\Users\홍길동\바탕 화면\마이크로컨트롤러\...`
+- 비권장: OneDrive 아래의 `바탕 화면` · `문서` 폴더
 
 > **바탕화면 주의**: 요즘 Windows 는 `바탕 화면`·`문서` 폴더가 기본으로
 > OneDrive 에 동기화됩니다. 경로가 `C:\Users\<계정>\OneDrive\...` 로 나온다면 옮기세요.
 
 ### 1-3. 계정 이름이 한글인 경우
-`C:\Users\홍길동` 처럼 계정 폴더가 한글이면, 프로젝트를 다른 데 둬도
-PlatformIO **툴체인 자체가** 한글 경로에 설치되어 빌드가 실패합니다.
+`C:\Users\홍길동` 처럼 계정 폴더가 한글이어도 **그대로 쓰면 됩니다.**
+툴체인이 그 아래 설치되어도 빌드에 문제가 없습니다.
 
-설치 스크립트가 이를 감지해 자동으로 우회 설정을 넣습니다.
-수동으로 하려면 (PowerShell):
-
-```bash
-[Environment]::SetEnvironmentVariable('PLATFORMIO_CORE_DIR','C:\pio-core','User')
-```
-
-설정 후 **VS Code 를 완전히 종료했다가** 다시 켜야 적용됩니다.
+> 2026-09 이전 버전의 `setup-windows.ps1` 은 이 경우 `PLATFORMIO_CORE_DIR` 을
+> `C:\pio-core` 로 바꾸는 우회 설정을 넣었습니다. 불필요할 뿐 아니라
+> 이미 설치된 Core 를 못 찾게 만들어 `doctor` 가 실패하는 원인이 되었습니다.
+> 지금 스크립트는 그 설정이 남아 있으면 자동으로 지웁니다.
+>
+> 직접 지우려면 (PowerShell):
+>
+> ```bash
+> [Environment]::SetEnvironmentVariable('PLATFORMIO_CORE_DIR', $null, 'User')
+> ```
+>
+> 지운 뒤 PowerShell 창을 새로 열어야 반영됩니다.
 
 ---
 

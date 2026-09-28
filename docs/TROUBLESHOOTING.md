@@ -16,7 +16,7 @@
 | 디스크 부족 | 여유 2 GB 이상 확보 후 VS Code 재시작 |
 | 백신 차단 (Win) | `.platformio` 폴더를 백신 예외에 추가 |
 | 학교 네트워크 차단 | 휴대폰 핫스팟으로 바꿔 재시도 |
-| 계정 경로 한글 (Win) | `PLATFORMIO_CORE_DIR` 설정 → [SETUP-Windows.md](SETUP-Windows.md) §1-3 |
+| 예전 `PLATFORMIO_CORE_DIR` 잔재 (Win) | 빈 폴더를 가리켜 Core 를 못 찾음 → [SETUP-Windows.md](SETUP-Windows.md) §1-3 |
 
 그래도 안 되면 Core 폴더를 지우고 처음부터 받게 합니다.
 - Windows: `C:\Users\<계정>\.platformio` 폴더 삭제
@@ -66,10 +66,12 @@ git add -A; if ($?) { git commit -m "메시지" }
 ## B. 빌드(컴파일) 실패
 
 ### B-1. `avr-gcc: No such file or directory` / 툴체인을 못 찾음
-거의 항상 **경로에 한글이 있어서** 입니다.
+툴체인이 설치되다 말았거나, `PLATFORMIO_CORE_DIR` 이 엉뚱한 폴더를 가리키는 경우입니다.
+**경로에 한글이 있어서가 아닙니다.** (한글 경로에서도 정상 빌드됩니다)
 
-- Windows: [SETUP-Windows.md](SETUP-Windows.md) §1-2, §1-3
-- macOS: 프로젝트를 `~/dev/mc2026` 로 옮기고 다시 시도
+1. `doctor` 를 다시 실행해 어느 위치를 찾고 있는지 확인
+2. Windows 에서 예전 우회 설정이 남아 있다면 제거 → [SETUP-Windows.md](SETUP-Windows.md) §1-3
+3. 그래도 안 되면 Core 폴더를 지우고 VS Code 로 폴더를 다시 열어 재설치 (A-1 참고)
 
 ### B-2. `#include <Arduino.h>` 에 빨간 줄이 뜨는데 빌드는 성공함
 IntelliSense 인덱스 문제입니다. **빌드가 성공했다면 코드는 정상입니다.**
