@@ -26,21 +26,31 @@ function Get-PioPath {
     if ($c) { return $c.Source }
 
     $roots = @()
-    # 현재 프로세스의 환경변수
+    # 1) 현재 프로세스의 환경변수
     if ($env:PLATFORMIO_CORE_DIR) { $roots += $env:PLATFORMIO_CORE_DIR }
-    # 사용자 환경변수로만 등록되어 현재 프로세스에는 안 보이는 경우
-    $reg = [Environment]::GetEnvironmentVariable('PLATFORMIO_CORE_DIR', 'User')
-    if ($reg) { $roots += $reg }
-    # 기본 위치
+    # 2) 등록만 되고 현재 프로세스에는 안 보이는 경우
+    foreach ($scope in 'User', 'Machine') {
+        $v = [Environment]::GetEnvironmentVariable('PLATFORMIO_CORE_DIR', $scope)
+        if ($v) { $roots += $v }
+    }
+    # 3) 기본 위치
     $roots += (Join-Path $env:USERPROFILE '.platformio')
-    # 예전 버전 설치 스크립트가 쓰던 위치
+    # 4) 계정 이름에 한글 등 비ASCII 문자가 있으면 PlatformIO 가 스스로
+    #    드라이브 루트로 옮겨 설치한다. (예: C:\Users\박근호 -> C:\.platformio)
+    $roots += (Join-Path $env:SystemDrive '\.platformio')
+    # 5) 예전 버전 설치 스크립트가 쓰던 위치
     $roots += (Join-Path $env:SystemDrive 'pio-core')
+
+    # 실행 파일 이름은 버전에 따라 pio.exe 또는 platformio.exe 다.
+    $exeNames = @('pio.exe', 'platformio.exe')
 
     $script:PioSearched = @()
     foreach ($r in ($roots | Where-Object { $_ } | Select-Object -Unique)) {
-        $p = Join-Path $r 'penv\Scripts\pio.exe'
-        $script:PioSearched += $p
-        if (Test-Path $p) { return $p }
+        foreach ($exe in $exeNames) {
+            $p = Join-Path $r (Join-Path 'penv\Scripts' $exe)
+            $script:PioSearched += $p
+            if (Test-Path $p) { return $p }
+        }
     }
     return $null
 }
@@ -59,6 +69,12 @@ if (-not $pio) {
     Write-Host "  1) VS Code 로 이 폴더를 '폴더째' 열었는가"
     Write-Host "  2) 우측 하단 'PlatformIO Core 설치 중' 알림이 끝났는가 (최초 5~10분)"
     Write-Host "  3) 이 PowerShell 창을 새로 열고 다시 실행했는가"
+    Write-Host ""
+    Write-Host "VS Code 에서는 빌드가 되는데 여기서만 못 찾는다면," -ForegroundColor Yellow
+    Write-Host "PlatformIO 터미널(Ctrl+Shift+P > PlatformIO: New Terminal)에서" -ForegroundColor Yellow
+    Write-Host "  pio system info" -ForegroundColor Cyan
+    Write-Host "를 실행해 'PlatformIO Core Directory' 를 확인한 뒤, 그 값으로 다시 실행하세요:" -ForegroundColor Yellow
+    Write-Host "  `$env:PLATFORMIO_CORE_DIR='<그 경로>'; .\scripts\doctor.ps1" -ForegroundColor Cyan
     exit 1
 }
 Write-Host "PlatformIO Core 경로: $pio"

@@ -33,7 +33,15 @@ PlatformIO 는 AVR 툴체인을 `C:\Users\<계정>\.platformio` 에 약 400 MB �
 
 ### 1-3. 계정 이름이 한글인 경우
 `C:\Users\홍길동` 처럼 계정 폴더가 한글이어도 **그대로 쓰면 됩니다.**
-툴체인이 그 아래 설치되어도 빌드에 문제가 없습니다.
+
+이 경우 PlatformIO 가 **스스로** 툴체인을 드라이브 루트로 옮겨 설치합니다.
+
+| 계정 이름 | Core 설치 위치 |
+|---|---|
+| 영문 (`C:\Users\gunho`) | `C:\Users\gunho\.platformio` |
+| 한글 (`C:\Users\박근호`) | **`C:\.platformio`** |
+
+둘 다 정상이며 빌드 결과도 같습니다. `doctor` 는 두 위치를 모두 찾습니다.
 
 > 2026-09 이전 버전의 `setup-windows.ps1` 은 이 경우 `PLATFORMIO_CORE_DIR` 을
 > `C:\pio-core` 로 바꾸는 우회 설정을 넣었습니다. 불필요할 뿐 아니라
